@@ -10,10 +10,14 @@ from numba import int64, float64, jit, njit, deferred_type
 from numba.experimental import jitclass
 from numba import types, typed
 # from main import IC_func 
+#from mesh import mesh_class
 from .mesh import mesh_class
+#from functions import normPn, normTn
 from .functions import normPn, normTn
 from .mutables import IC_func
 from .functions import weight_func_Tn
+# from mutables import IC_func
+# from functions import weight_func_Tn
 
 import yaml
 from pathlib import Path
@@ -213,6 +217,7 @@ class build(object):
             for space in range(self.N_space):
                 for j in range(self.M + 1):
                     if self.geometry['slab'] == True:
+                        print("Inside slab if statement.")
                         self.integrate_quad(edges_init[space], edges_init[space+1], ang, space, j, ic)
                     elif self.geometry['sphere'] == True:
                         self.integrate_quad_sphere(edges_init[space], edges_init[space+1], ang, space, j, ic)

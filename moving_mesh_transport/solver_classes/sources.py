@@ -82,9 +82,13 @@ class source_class(object):
 
     
     def integrate_quad_sphere(self, t, a, b, j, func):
-        argument = (b-a)/2*self.xs_quad + (a+b)/2
-        self.S[j] = 0.5 * (b-a) * np.sum((argument**2) * np.sqrt(1- self.xs_quad**2) * self.ws_quad * func(argument, t) * 1 * normTn(j, argument, a, b))
-
+        argument = (b-a)/2 * self.xs_quad + (a+b)/2
+        #self.S[j] = 0.5 * (b-a) * np.sum((argument**2) * np.sqrt(1- self.xs_quad**2) * self.ws_quad * func(argument, t) * 1 * normTn(j, argument, a, b))
+        self.S[j] = 0.5 * (b-a) * np.sum( (argument**2) * self.ws_quad * func(argument, t) * normTn(j, argument, a, b))
+        #self.S[j] = 0.5 * j  # Testing simple function
+        #print("self.S[j] inside integrate_quad_sphere function: ", self.S[j])
+        #if self.S[j] != 0:
+            #print("Non zero self.S[j] inside integrate_quad_sphere function: ", self.S[j])
 
 
     def integrate_quad_not_isotropic(self, t, a, b, j, mu, func):
@@ -102,9 +106,13 @@ class source_class(object):
     def square_source(self, xs, t):
         temp = xs*0
         for ix in range(xs.size):
-            if abs(xs[ix]) <= self.x0 and t < self.t0:
+            # abs(xs[ix] - big number)
+            if ((abs(xs[ix]) - 510) < self.x0) and (t < self.t0):
                 temp[ix] = 1.0
-        return temp
+        if self.geometry['slab'] == True:
+            return temp
+        elif self.geometry['sphere'] == True:
+            return temp/(4*np.pi*self.x0**3) 
             
     def gaussian_source(self, xs, t):
         temp = xs*0
@@ -133,20 +141,41 @@ class source_class(object):
                         self.integrate_quad(t, xL, xR, j, self.gaussian_source)
         
         elif self.geometry['sphere'] == True:
+            # print("In spherical if statement.") # This statement is evaluating to true
             if self.uncollided == True:
-                if self.source_type[1] == 1:
+                if (self.source_type[1] == 1) or (self.source_type[2] == 1):
                     for j in range(self.M+1):
                         self.integrate_quad_sphere(t, xL, xR, j, uncollided_solution.uncollided_solution)
+            elif self.uncollided == False:
+                #print("In uncollided off if statement.") # This if statement is evaluating to true.
+                if self.source_type[2] == 1:
+                    #print("In square source if statement.")  
+                    for j in range(self.M+1):
+                        self.integrate_quad_sphere(t, xL, xR, j, self.square_source)
+                        #print("Integrate_quad_sphere function is returning ", self.integrate_quad_sphere(t, xL, xR, j, self.square_source))
+                elif self.source_type[5] == 1:
+                    for j in range(self.M+1):
+                        self.integrate_quad_sphere(t, xL, xR, j, self.gaussian_source)
+
+        #print(self.integrate_quad_sphere(t, xL, xR, j, self.square_source).type)
+                
+
                     
                 # if self.source_type[0] == 1:
                 #     for j in range(self.M+1):
                 #         if (xL <= t <= xR):
                 #             t = t + 1e-10
-                #             self.S[j] = math.exp(-t)/4/math.pi/t * normTn(j, np.array([t]), xL, xR)[0] 
-
-                        
+                #             self.S[j] = math.exp(-t)/4/math.pi/t * normTn(j, np.array([t]), xL, xR)[0]                
 
         self.S = self.S * self.source_strength
+        #if ( (self.S[0] != 0) or (self.S[1] != 0)):
+        #    print(self.S)s
+
+    # def test_square_source(xL, xR):
+    #     """Used to test if the solution obtained for the square source without the uncollided treatment is 
+    #     correct."""
+
+    #     return (math.sqrt(1/(-xL + xR))*(-0.3333333333333333*xL**3 + xR**3/3.))/math.sqrt(math.pi) 
 
     def make_source_not_isotropic(self, t, mu, xL, xR):
             if self.source_type[4] ==1:

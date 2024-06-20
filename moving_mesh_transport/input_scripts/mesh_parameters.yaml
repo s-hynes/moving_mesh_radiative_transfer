@@ -4,7 +4,7 @@
 'estimate_wavespeed': False
 'find_wave_loc': False
 'choose_xs': False        # Allows the user to select points to return a solution
-'pad': 300.0                 # parameter for thick source meshes
+'pad': 35.0               # parameter for thick source meshes
 'leader_pad': 0.025             #parameter for thick source meshes
 
 

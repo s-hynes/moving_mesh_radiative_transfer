@@ -72,7 +72,7 @@ class scalar_flux(object):
             for i in range(0, self.M+1):
                 self.P[i]  = np.sum(np.multiply(u[:,i],self.ws))
             if self.geometry['slab'] == True:
-                self.scalar_flux_term = self.sigma_s * self.P
+                self.scalar_flux_term = self.P
             elif self.geometry['sphere'] == True:
                 self.scalar_flux_term = self.P 
 

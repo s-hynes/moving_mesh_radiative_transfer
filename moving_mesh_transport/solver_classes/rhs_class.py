@@ -306,5 +306,3 @@ class rhs_class():
                     V_new[angle,space,:] = RHS_transport 
                     
         return V_new.reshape(deg_freedom)
-    
-       

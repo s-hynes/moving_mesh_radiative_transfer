@@ -181,7 +181,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         print(tpnts, 'time points')
 
     sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method=integrator, t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
-    print(sol)
+    # print(sol)
     print(sol.y.shape,'sol y shape')
     print(eval_times, 'eval times')
     end = timer()
@@ -244,7 +244,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         psi = output.psi_out # this is the collided psi
         exit_dist, exit_phi = output.get_exit_dist(uncollided_sol)
         xs_ret = xs
-        if thermal_couple == 1:
+        if thermal_couple['none'] == 0:
             e = output.make_e()
         else:
             e = phi*0

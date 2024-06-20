@@ -163,8 +163,8 @@ class LU_surf(object):
         returnval = False
         if self.source_type[4] == 1:
             returnval = True
-        elif self.thermal_couple == 1:
-            returnval = True
+        #elif self.thermal_couple == 1:
+        #    returnval = True
         elif self.boundary_source == True:
             if self.uncollided == False:
                 if t <= self.t0:

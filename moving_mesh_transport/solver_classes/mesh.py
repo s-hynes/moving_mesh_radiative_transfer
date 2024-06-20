@@ -4,11 +4,14 @@ import numba
 from numba.experimental import jitclass
 import math
 from .functions import problem_identifier 
+#from functions import problem_identifier 
 from .mesh_functions import set_func, _interp1d
+#from mesh_functions import set_func, _interp1d
 # import quadpy
 import numpy.polynomial as nply
 from scipy.special import roots_legendre
 from .mesh_functions import boundary_source_init_func_outside
+#from mesh_functions import boundary_source_init_func_outside
 import numba as nb
 params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 
@@ -197,9 +200,11 @@ class mesh_class(object):
 
            
 
-            elif (self.source_type[2] == 1 or self.source_type[1] == 1) and self.finite_domain == True: #or self.source_type[0]!=0:
+            elif (self.source_type[2] == 1):
+            #or self.source_type[1] == 1):
                 # self.finite_domain = True # what is the deal with this?
                 if (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
+                        #assert(0)          # For testing if this if statements evaluates to true
                         self.edges = self.edges
                         self.Dedges = self.Dedges_const*0
                     # if t == self.tfinal:
@@ -279,7 +284,10 @@ class mesh_class(object):
             # final_pos = self.edges0[-1] + self.Dedges[-1] * self.tfinal
             final_pos = self.pad
             # final_pos = self.x0 + self.pad
-            final_array = np.linspace(-final_pos, final_pos, self.N_space + 1)
+            if self.geometry['slab'] == True:
+                final_array = np.linspace(-final_pos, final_pos, self.N_space + 1)
+            elif self.geometry['sphere'] == True:
+                final_array = np.linspace(0, final_pos, self.N_space + 1)
             # print(final_array, 'final array')
 
             # constant velocity
@@ -810,13 +818,25 @@ class mesh_class(object):
             if self.source_type[3] == 1 or self.source_type[5] == 1:
                 self.simple_moving_init_func()
             # elif self.problem_type in ['square_IC', 'square_source']:
-            elif self.source_type[1] == 1 or self.source_type[2] == 1:
+            #elif self.source_type[1] == 1 or self.source_type[2] == 1:
+            elif self.source_type[1] == 1:
                 print('calling thin square init')
                 if self.geometry['slab'] == True:
                     self.thin_square_init_func_legendre()
                 else:
                     # self.simple_moving_init_func()
                     self.shell_source()
+            elif self.source_type[2] == 1:
+                print('calling thin square init')
+                if self.geometry['slab'] == True:
+                    self.thin_square_init_func_legendre()
+                else:
+                    self.edges = np.linspace(500, 520, self.N_space + 1)
+                    self.edges[self.N_space//3] = 509.5
+                    self.edges[(2*self.N_space)//3] = 510.5
+                    self.edges = np.sort(self.edges)
+                    self.Dedges = self.edges * 0
+                    self.shell_source()    
             
             elif np.all(self.source_type == 0):
                 self.boundary_source_init_func(self.vnaught)

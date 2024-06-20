@@ -40,7 +40,7 @@ class run:
     def __init__(self):
         self.data_folder = Path("moving_mesh_transport/input_scripts")
     
-    def load(self, problem_type = 'transport'):
+    def load(self, problem_type = 'marshak'):
         config_file_path = self.data_folder / f"{problem_type}.yaml"
         mesh_config_file_path = self.data_folder / "mesh_parameters.yaml"
         with open(config_file_path, 'r') as file:
@@ -74,6 +74,27 @@ class run:
         # plt.title("plane IC")
         # plt.legend()
         # plt.show(block = False)
+
+    def marshak(self, uncollided = True, moving = True, All = False):
+        plt.ion()
+        # plt.figure(1)
+        source_name = "marshak"
+        print("---  ---  ---  ---  ---  ---  ---")
+        print("running Marshak Wave problem")
+        print("---  ---  ---  ---  ---  ---  ---")
+        
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
+        if All == True:
+            solver.main(True, True)
+            solver.main(False, True)
+            solver.main(True, False)
+            solver.main(False, False)
+        else:
+            solver.main(uncollided, moving)
+            self.get_results(solver)
+        # plt.title("plane IC")
+        # plt.legend()
+        # plt.show(block = False)
         
     def square_IC(self, uncollided = True, moving = True, All = False):
         plt.ion()
@@ -91,6 +112,12 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
+
+        if self.parameters['all']['radiative_transfer']['none'] == False :
+            # plt.plot(self.xs, self.phi, '-.', label = 'scalar flux', mfc = 'none')
+            plt.plot(self.xs, self.e, '-.', label = 'energy density', mfc = 'none')
+            plt.legend()
+            plt.show()
 
         # plt.title("square IC")
         # plt.legend()
@@ -116,6 +143,11 @@ class run:
             self.olson_henderson_bench(self.tfinal)
             plt.figure(9)
             plt.plot(self.xs, self.phi, '-.', label = 'scalar flux', mfc = 'none')
+            plt.legend()
+            plt.show()
+
+        if self.parameters['all']['radiative_transfer']['none'] == False :
+            plt.plot(self.xs, self.e, '-.', label = 'energy density', mfc = 'none')
             plt.legend()
             plt.show()
      

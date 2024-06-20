@@ -14,6 +14,7 @@ import numba as nb
 
 
 
+
 ###############################################################################
 params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 data = [('N_ang', int64), 
@@ -74,9 +75,16 @@ class IC_func(object):
                 if self.source_type[0] == 1:
                     # return self.plane_and_square_IC(x)/self.x0/2.0 
                     return self.point_pulse(x)/(self.x0**3)
-
                 elif self.source_type[1] == 1:
                     return self.shell_IC(x)
+                # This elif below added by Stephen
+                # The problem that was causing the code not to run seems to have been here (19-06-24)
+                #elif ((self.source_type[2] == 1):
+                #    for j in range(x.size):
+                #        if np.less(np.abs(x[j]) - 510, self.x0)):
+                #            return np.zeros(x.size)
+                else:
+                    return np.zeros(x.size)
             else:
                 return np.zeros(x.size)
 
@@ -87,7 +95,7 @@ class IC_func(object):
 
 
     def plane_and_square_IC(self, x):
-        temp = (np.greater(x, -self.x0) - np.greater(x, self.x0))*self.source_strength
+        temp = (np.greater(x, - self.x0) - np.greater(x, self.x0))*self.source_strength
             # temp = x/x
         return temp/2.0
     
