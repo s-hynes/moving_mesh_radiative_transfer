@@ -173,16 +173,21 @@ class main_class(parameter_load_class):
 
                 ##################################################################
                 plt.figure(1)
+                """I (Stephen) took out the markers from the plots here because they look a bit cumbersome
+                for large numbers of cells. There's probably a better solution involving using an if statement
+                to only include markers if the number of cells is smaller than a certain number."""
                 if self.eval_times == False:
-                    plt.plot(xs, phi, "-o", label = f"{N_space} spatial cells", mfc = "none")
+                    plt.plot(xs, phi, "-", label = f"{N_space} spatial cells", mfc = "none")
                     if self.benchmarking == True:
                         plt.plot(xs, benchmark(np.abs(xs))[0], '-k')
+                    plt.title("Energy densities for tfinal = {0}, M = {1}, angles = {2}".format(self.tfinal, self.Ms, self.N_angles))
 
                 else:
-                    plt.plot(xs[-1], phi[-1,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
-                    plt.plot(xs[0], phi[0,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
+                    plt.plot(xs[-1], phi[-1,:], "-", label = f"{N_space} spatial cells", mfc = "none")
+                    plt.plot(xs[0], phi[0,:], "-", label = f"{N_space} spatial cells", mfc = "none")
                     if self.benchmarking == True:
                         plt.plot(xs, benchmark(np.abs(xs))[0], '-k')
+                    plt.title("Energy densities for tfinal = {0}, M = {1}, angles = {2}".format(self.tfinal, self.Ms, self.N_angles))
 
                 plt.xlabel("x")
                 plt.ylabel("scalar flux")
