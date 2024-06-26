@@ -69,6 +69,9 @@ data = [('N_ang', int64),
         ('vv0', float64),
         ('t0', float64),
         ('geometry', nb.typeof(params_default)),
+        ('edge1', float64),
+        ('edge2', float64),
+        ('radius', float64)
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -96,6 +99,8 @@ class mesh_class(object):
         self.N_space = N_space
         self.speed = edge_v
         self.geometry = geometry
+
+        self.radius = 50
 
         self.move_factor = move_factor
         if self.test_dimensional_rhs == True:
@@ -158,6 +163,7 @@ class mesh_class(object):
 
     def move(self, t):
 
+        #print("Edges at start of move function: ", self.edges)
         # print(self.edges)pr
         """
         Called each time the rhs moves the mesh. Changes edges and Dedges
@@ -201,6 +207,7 @@ class mesh_class(object):
            
 
             elif (self.source_type[2] == 1):
+                #print("Inside elif statement for square source")
             #or self.source_type[1] == 1):
                 # self.finite_domain = True # what is the deal with this?
                 if (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
@@ -213,8 +220,14 @@ class mesh_class(object):
                     # else:
                 else:
                     if self.move_func == 0:
-                            if t >= self.t0:
+                            #assert 0, "Inside this if statement" # Yep, it is in here
+                            if t >= self.t0:   # I think this is responsible for the edges only going out to 35
+                                #assert 0, "Inside this if statement" # Yep, it is in here
+                                #print("Edges before move_middle_edges: ", self.edges)
                                 self.move_middle_edges(t)
+                                #print("Edges after move_middle_edges: ", self.edges)
+                                # I don't think move_middle_edges is making any problems
+                                # The line below will be zero if t = t0, which might be why tfinal=t0 makes problems
                                 tnew1 = t - self.t0 
 
                             ### uncomment this to go back to the old mesh
@@ -230,13 +243,23 @@ class mesh_class(object):
                             ### uncomment this for acceleration case
 
                                 self.edges = 0.5 * self.c1s * (tnew1) ** 2 + self.Dedges_const * tnew1 + self.edges0_2
+                                print("Edges after line 240: ", self.edges)
                                 self.Dedges = self.c1s * tnew1 + self.Dedges_const
+
+                                """ I'll have to ask Bill about this section of code. It's not relevant
+                                for evaluation times before the source is turned off."""
+
+                                #assert 0
 
 
                             elif (t < self.t0):
                             
                                 self.edges = self.edges0 + self.Dedges*t
 
+                            #elif t == self.t0:
+                            #    """I (Stephen) put this here because I think this part of the code doesn't 
+                            #    like if t0 and tfinal are the same"""
+                            #    assert 0, "Evaluation time is the same as the time at which the source is turned off."
 
                             # self.Dedges = self.Dedges_const
                             
@@ -271,6 +294,8 @@ class mesh_class(object):
             #         if self.edges[itest] != np.sort(self.edges)[itest]:
             #             print("crossed edges")
             #             assert(0)
+            #print("Edges at end of move function: ", self.edges)
+
     def smooth_wave_loc_array(self):
         for ix in range(0,self.wave_loc_array[0,3,:].size-1):
             if self.wave_loc_array[0,3,ix] < self.wave_loc_array[0,3,ix +1]:
@@ -814,29 +839,44 @@ class mesh_class(object):
 
         if self.thick == False:     # thick and thin sources have different moving functions
 
+            #print("Inside thin if statement")
+
             # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
             if self.source_type[3] == 1 or self.source_type[5] == 1:
+                #print("Inside Gaussian if statement")
                 self.simple_moving_init_func()
             # elif self.problem_type in ['square_IC', 'square_source']:
             #elif self.source_type[1] == 1 or self.source_type[2] == 1:
             elif self.source_type[1] == 1:
+                #print("Inside square pulse if statement")
                 print('calling thin square init')
                 if self.geometry['slab'] == True:
+                    #print("Inside slabe geometry if statement")
                     self.thin_square_init_func_legendre()
                 else:
+                    #print("Inside spherical geometry if statement")
                     # self.simple_moving_init_func()
                     self.shell_source()
             elif self.source_type[2] == 1:
+                #print("Inside square source if statement")
                 print('calling thin square init')
                 if self.geometry['slab'] == True:
+                    #print("Inside slab geometry if statement")
                     self.thin_square_init_func_legendre()
                 else:
-                    self.edges = np.linspace(500, 520, self.N_space + 1)
-                    self.edges[self.N_space//3] = 509.5
-                    self.edges[(2*self.N_space)//3] = 510.5
+                    #print("Inside spherical geometry if statement")
+                    """I defined the variables self.edge1 and 2 below to make the most efficient use
+                    possible of the static mesh."""
+                    self.edge1 = self.radius - self.x0 - self.tfinal
+                    self.edge2 = self.radius + self.x0 + self.tfinal
+                    self.edges = np.linspace(self.edge1, self.edge2, self.N_space + 1)
+                    self.edges[self.N_space//3] = self.radius - 0.5
+                    self.edges[(2*self.N_space)//3] = self.radius + 0.5
                     self.edges = np.sort(self.edges)
                     self.Dedges = self.edges * 0
-                    self.shell_source()    
+                    #print("Edges inside initialize_mesh function: ", self.edges)
+                    self.edges0 = self.edges
+                    #self.shell_source()   
             
             elif np.all(self.source_type == 0):
                 self.boundary_source_init_func(self.vnaught)
@@ -896,10 +936,4 @@ class mesh_class(object):
 
 
             print(self.edges[-1], "final edges -- last edge")
-
-
-
-
-    
-
-
+            #print("Edges at the end of initialize_mesh function: ", self.edges)

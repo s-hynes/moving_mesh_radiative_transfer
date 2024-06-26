@@ -54,7 +54,7 @@ data = [("S", float64[:]),
         ('source_strength', float64),
         ('sigma_s', float64),
         ('geometry', nb.typeof(params_default)),
-        
+        ('radius', float64)
         ]
 ###############################################################################
 @jitclass(data)
@@ -75,6 +75,8 @@ class source_class(object):
         # self.source_strength = 0.0137225 * 299.98
         self.source_strength = build.source_strength
         self.geometry = build.geometry
+
+        self.radius = 50
     
     def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -107,12 +109,24 @@ class source_class(object):
         temp = xs*0
         for ix in range(xs.size):
             # abs(xs[ix] - big number)
-            if ((abs(xs[ix]) - 510) < self.x0) and (t < self.t0):
+            #1# if ((abs(xs[ix]) - self.radius) < self.x0) and (t < self.t0):
+            #if ((abs(xs[ix]) - self.radius) < self.x0) and (t < self.t0):
+            """This one below made the flux go to zero (~10^-20) in most places, bar one spike
+            close to the centre of the sphere."""
+            #3# if (xs[ix] - self.radius > - self.x0) and (xs[ix] - self.radius < self.x0) and (t < self.t0):
+            """ This one seems to have done the same thing as number 2."""
+            #4# if (xs[ix] < abs(self.x0)) and (t < self.t0):
+            """5 does the same thing as 2 and 3."""
+            #5#
+            # Not entirely sure that these two if statements are equivalent. Might test it at some point.
+            # I think the more concise if statement does actually work.
+            if ( abs(abs(xs[ix]) - self.radius) <= 0.5) and (t < self.t0):
+            #if (abs(xs[ix]) <= self.radius + 0.5) and (abs(xs[ix]) >= self.radius - 0.5) and (t < self.t0):
                 temp[ix] = 1.0
         if self.geometry['slab'] == True:
             return temp
         elif self.geometry['sphere'] == True:
-            return temp/(4*np.pi*self.x0**3) 
+            return temp/(4*np.pi*(self.x0)**3)
             
     def gaussian_source(self, xs, t):
         temp = xs*0

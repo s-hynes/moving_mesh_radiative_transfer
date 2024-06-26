@@ -15,6 +15,8 @@ import numpy as np
 from scipy import integrate
 import scipy.interpolate as interp
 
+from ..Su_Olson_reading_data import su_olson
+
 # I could take all of the plotting out of the solver, group problems here by 
 # infinite medium, finite etc. to simplify things
 #-----------------------------------------------------------------------------
@@ -145,6 +147,29 @@ class run:
             plt.plot(self.xs, self.phi, '-.', label = 'scalar flux', mfc = 'none')
             plt.legend()
             plt.show()
+        # I (Stephen) added this to test the square source against the figures given in the Su-Olson paper.
+        
+        sotimes = [0.10000,0.31623,1.00000,3.16228,10.0000,31.6228,100.000]
+
+        if [item for item in sotimes if item == self.tfinal] :
+            su_olson(self.tfinal)
+
+        # I think the single if statement above achieves the same thing as the sequence of if and elifs below
+        
+        """ if self.tfinal == 0.1:
+            su_olson(0.1)
+        elif self.tfinal == 0.31623:
+            su_olson(0.31623)
+        elif self.tfinal == 1.0:
+            su_olson(1.0)
+        elif self.tfinal == 3.16228:
+            su_olson(3.16228)
+        elif self.tfinal == 10.0:
+            su_olson(10.0)
+        elif self.tfinal == 31.6228:
+            su_olson(31.6228)
+        elif self.tfinal == 100.0:
+            su_olson(100.0) """
 
         if self.parameters['all']['radiative_transfer']['none'] == False :
             plt.plot(self.xs, self.e, '-.', label = 'energy density', mfc = 'none')
