@@ -219,7 +219,7 @@ class rhs_class():
                 Mass = matrices.Mass
                 Minv = np.linalg.inv(Mass)
                 J = matrices.J
-                VVs = matrices.VV
+                VVs = matrices.VV    # What is this and why is it not used? (Stephen)
             # make P if there is any scattering
             if self.radiative_transfer['none'] == False:
                 flux.make_P(V_old[:-1,space,:], space, xL, xR)
@@ -240,6 +240,7 @@ class rhs_class():
             def testsoln(a, b):
                 """ Calculates the value of the analytic solution for H when a simple function is used,
                 to test whether the temperature function is being integrated properly."""
+                # This little unit test apparently sounds good in a report / looks good on the CV and all that
                 test = np.sqrt(1/(np.pi*(b-a)) ) * ((a**2 - 2)*np.cos(a) - 2*a*np.sin(a) - (b**2 - 2)*np.cos(b) + 2*b*np.sin(b))
                 return test
 

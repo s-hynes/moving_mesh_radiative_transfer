@@ -84,7 +84,7 @@ data = [('N_ang', int64),
         ('x01', float64),
         ('test_dimensional_rhs', int64),
         ('epsilon', float64), 
-        ('geometry', nb.typeof(params_default)),
+        ('geometry', nb.typeof(params_default))
         ]
 ###############################################################################
 
@@ -153,7 +153,6 @@ class build(object):
        
         self.e_init = e_initial
         # self.e_initial = 1e-4
-        
         
     def integrate_quad(self, a, b, ang, space, j, ic):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
