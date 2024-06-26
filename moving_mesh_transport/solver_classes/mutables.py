@@ -32,6 +32,7 @@ data = [('N_ang', int64),
         ('x1', float64),
         ('mu', float64),
         ('geometry', nb.typeof(params_default)),
+        ('radius', float64)
         ]
 @jitclass(data)
 class IC_func(object):
@@ -43,6 +44,7 @@ class IC_func(object):
         self.sigma = sigma
         self.x1 = x1
         self.geometry = geometry
+        self.radius = 50
 
 
     def function(self, x, mu):
@@ -81,7 +83,7 @@ class IC_func(object):
                 # The problem that was causing the code not to run seems to have been here (19-06-24)
                 #elif ((self.source_type[2] == 1):
                 #    for j in range(x.size):
-                #        if np.less(np.abs(x[j]) - 510, self.x0)):
+                #        if np.less(np.abs(x[j]) - self.radius, self.x0)):
                 #            return np.zeros(x.size)
                 else:
                     return np.zeros(x.size)
